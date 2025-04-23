@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+
+{% block title %}Penn State RMP Dashboard{% endblock %}
+
+{% block content %}
+{% if not data_available %}
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">Data Not Available</h4>
+        <p>{{ error_message }}</p>
+        <hr>
+        <p class="mb-0">Please run the data pipeline first to generate processed data.</p>
+    </div>
+{% else %}
+    <!-- Dashboard Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">Dashboard Overview</h2>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card dashboard-card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Reviews</h5>
+                    <p class="card-text display-6">{{ review_count }}</p>
+                    <p class="card-text"><small>Total reviews analyzed</small></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card dashboard-card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Professors</h5>
+                    <p class="card-text display-6">{{ professor_count }}</p>
+                    <p class="card-text"><small>Unique professors</small></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card dashboard-card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Avg. Rating</h5>
+                    <p class="card-text display-6">{{ avg_rating|round(1) }}</p>
+                    <p class="card-text"><small>Out of 5.0</small></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card dashboard-card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Avg. Difficulty</h5>
+                    <p class="card-text display-6">{{ avg_difficulty|round(1) }}</p>
+                    <p class="card-text"><small>Out of 5.0</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sentiment Distribution Card -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card dashboard-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Sentiment Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                                <h3>{{ sentiment_counts.get('positive', 0) }}</h3>
+                                <p>Positive</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                                <h3>{{ sentiment_counts.get('neutral', 0) }}</h3>
+                                <p>Neutral</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 bg-danger bg-opacity-10 rounded">
+                                <h3>{{ sentiment_counts.get('negative', 0) }}</h3>
+                                <p>Negative</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card dashboard-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Departments</h5>
+                </div>
+                <div class="card-body">
+                    <div class="department-list" style="max-height: 215px; overflow-y: auto;">
+                        <div class="row">
+                            {% for department in departments %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-building me-2 text-primary"></i>
+                                    <span>{{ department }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Charts Section -->
+    <div class="row" id="interactive-charts">
+        <div class="col-12">
+            <h2 class="mb-3">Interactive Charts</h2>
+            <div class="card">
+                <div class="card-body">
+                    <div class="controls-panel">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="x-axis-select" class="form-label">X-Axis</label>
+                                <select id="x-axis-select" class="form-select">
+                                    <option value="department">Department</option>
+                                    <!-- Options will be populated by JavaScript -->
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="y-axis-select" class="form-label">Y-Axis</label>
+                                <select id="y-axis-select" class="form-select">
+                                    <option value="rating">Rating</option>
+                                    <!-- Options will be populated by JavaScript -->
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="color-select" class="form-label">Color By</label>
+                                <select id="color-select" class="form-select">
+                                    <option value="sentiment">Sentiment</option>
+                                    <!-- Options will be populated by JavaScript -->
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="chart-type-select" class="form-label">Chart Type</label>
+                                <select id="chart-type-select" class="form-select">
+                                    <option value="bar">Bar Chart</option>
+                                    <option value="scatter">Scatter Plot</option>
+                                    <option value="box">Box Plot</option>
+                                    <option value="heatmap">Heatmap</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="agg-func-select" class="form-label">Aggregation</label>
+                                <select id="agg-func-select" class="form-select">
+                                    <option value="mean">Mean</option>
+                                    <option value="median">Median</option>
+                                    <option value="count">Count</option>
+                                    <option value="sum">Sum</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="department-filter" class="form-label">Department Filter</label>
+                                <select id="department-filter" class="form-select">
+                                    <option value="All">All Departments</option>
+                                    {% for department in departments %}
+                                    <option value="{{ department }}">{{ department }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="sentiment-filter" class="form-label">Sentiment Filter</label>
+                                <select id="sentiment-filter" class="form-select">
+                                    <option value="All">All Sentiments</option>
+                                    <option value="positive">Positive</option>
+                                    <option value="neutral">Neutral</option>
+                                    <option value="negative">Negative</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="update-chart" class="form-label">&nbsp;</label>
+                                <button id="update-chart" class="btn btn-primary d-block w-100">Update Chart</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="chart-container" class="chart-container">
+                        <!-- Chart will be rendered here -->
+                        <div class="d-flex justify-content-center align-items-center h-100">
+                            <p class="text-muted">Select chart options and click "Update Chart" to visualize data</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Browser Section -->
+    <div class="row mt-4" id="data-section">
+        <div class="col-12">
+            <h2 class="mb-3">Data Browser</h2>
+            <div class="card">
+                <div class="card-body">
+                    <div class="controls-panel">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="department-data-filter" class="form-label">Department</label>
+                                <select id="department-data-filter" class="form-select">
+                                    <option value="All">All Departments</option>
+                                    {% for department in departments %}
+                                    <option value="{{ department }}">{{ department }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="professor-filter" class="form-label">Professor</label>
+                                <select id="professor-filter" class="form-select">
+                                    <option value="All">All Professors</option>
+                                    <!-- Will be populated by JavaScript -->
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="load-data" class="form-label">&nbsp;</label>
+                                <button id="load-data" class="btn btn-primary d-block w-100">Load Data</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Professor</th>
+                                    <th>Department</th>
+                                    <th>Rating</th>
+                                    <th>Difficulty</th>
+                                    <th>Sentiment</th>
+                                    <th>Text</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be loaded here -->
+                                <tr>
+                                    <td colspan="6" class="text-center">Click "Load Data" to view reviews</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Populate axis selectors with available fields
+        $.getJSON('/available-fields', function(data) {
+            if (data.error) {
+                console.error(data.error);
+                return;
+            }
+            
+            // Populate X-axis (categorical fields)
+            const xSelect = $('#x-axis-select');
+            xSelect.empty();
+            data.categorical.forEach(field => {
+                xSelect.append(`<option value="${field}">${field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>`);
+            });
+            
+            // Populate Y-axis (numerical fields)
+            const ySelect = $('#y-axis-select');
+            ySelect.empty();
+            data.numerical.forEach(field => {
+                ySelect.append(`<option value="${field}">${field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>`);
+            });
+            
+            // Populate color-by selector (categorical fields, plus numerical fields that could be binned)
+            const colorSelect = $('#color-select');
+            colorSelect.empty();
+            data.categorical.forEach(field => {
+                colorSelect.append(`<option value="${field}">${field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>`);
+            });
+        });
+        
+        // Update professors dropdown when department changes
+        $('#department-data-filter').change(function() {
+            const department = $(this).val();
+            $.getJSON(`/professors?department=${department}`, function(data) {
+                const professorSelect = $('#professor-filter');
+                professorSelect.empty();
+                professorSelect.append('<option value="All">All Professors</option>');
+                
+                data.forEach(professor => {
+                    professorSelect.append(`<option value="${professor}">${professor}</option>`);
+                });
+            });
+        });
+        
+        // Load data for table
+        $('#load-data').click(function() {
+            const department = $('#department-data-filter').val();
+            const professor = $('#professor-filter').val();
+            
+            $.getJSON(`/data?department=${department}&professor=${professor}`, function(data) {
+                if (data.error) {
+                    console.error(data.error);
+                    return;
+                }
+                
+                const tableBody = $('#data-table tbody');
+                tableBody.empty();
+                
+                if (data.length === 0) {
+                    tableBody.append('<tr><td colspan="6" class="text-center">No data found</td></tr>');
+                    return;
+                }
+                
+                data.forEach(row => {
+                    const difficultyDisplay = row.difficulty ? row.difficulty.toFixed(1) : 'N/A';
+                    let sentimentClass = '';
+                    
+                    if (row.sentiment === 'positive') {
+                        sentimentClass = 'text-success';
+                    } else if (row.sentiment === 'negative') {
+                        sentimentClass = 'text-danger';
+                    } else {
+                        sentimentClass = 'text-warning';
+                    }
+                    
+                    tableBody.append(`
+                        <tr>
+                            <td>${row.professor_name}</td>
+                            <td>${row.department}</td>
+                            <td>${row.rating.toFixed(1)}</td>
+                            <td>${difficultyDisplay}</td>
+                            <td class="${sentimentClass}">${row.sentiment}</td>
+                            <td>${row.clean_text.substring(0, 100)}${row.clean_text.length > 100 ? '...' : ''}</td>
+                        </tr>
+                    `);
+                });
+            });
+        });
+        
+        // Update chart when button is clicked
+        $('#update-chart').click(function() {
+            $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
+            
+            const xAxis = $('#x-axis-select').val();
+            const yAxis = $('#y-axis-select').val();
+            const colorBy = $('#color-select').val();
+            const chartType = $('#chart-type-select').val();
+            const aggFunc = $('#agg-func-select').val();
+            const department = $('#department-filter').val();
+            const sentiment = $('#sentiment-filter').val();
+            
+            $.getJSON(`/create-chart?x_axis=${xAxis}&y_axis=${yAxis}&color_by=${colorBy}&chart_type=${chartType}&agg_func=${aggFunc}&department=${department}&sentiment=${sentiment}`, function(data) {
+                if (data.error) {
+                    console.error(data.error);
+                    $('#chart-container').html(`<div class="alert alert-danger">${data.error}</div>`);
+                    return;
+                }
+                
+                // Clear placeholder and render chart
+                $('#chart-container').empty();
+                const chartData = JSON.parse(data.chart);
+                Plotly.newPlot('chart-container', chartData.data, chartData.layout);
+                
+                // Enable button again
+                $('#update-chart').prop('disabled', false).text('Update Chart');
+            }).fail(function() {
+                $('#chart-container').html('<div class="alert alert-danger">Error loading chart data</div>');
+                $('#update-chart').prop('disabled', false).text('Update Chart');
+            });
+        });
+        
+        // Show initial data when page loads
+        $('#load-data').trigger('click');
+        
+        // Create an initial chart when page loads
+        $('#update-chart').trigger('click');
+    });
+</script>
+{% endblock %}

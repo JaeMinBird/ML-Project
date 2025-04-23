@@ -1,0 +1,6 @@
+department,review_count,avg_rating,avg_difficulty,positive_sentiment,neutral_sentiment,negative_sentiment,would_take_again
+Psychology,20,4.3,2.85,90.0,0.0,10.0,100.0
+Statistics,10,3.2,3.5,50.0,10.0,40.0,55.55555555555556
+Computer Science,20,2.95,3.55,30.0,30.0,40.0,100.0
+Economics,60,2.716666666666667,3.6,41.66666666666667,5.0,53.333333333333336,100.0
+Business,40,1.625,3.925,7.5,7.5,85.0,100.0

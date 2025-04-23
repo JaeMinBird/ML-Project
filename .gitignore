@@ -20,7 +20,7 @@ ENV/
 models/*/model.safetensors
 models/*/pytorch_model.bin
 models/*/*weight*
-models/
+models/**
 
 # Data files - can be regenerated from scripts
 data/

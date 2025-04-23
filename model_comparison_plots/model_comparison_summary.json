@@ -1,0 +1,14 @@
+{
+    "test_samples": 13,
+    "standard_model_accuracy": 53.84615384615385,
+    "combined_model_accuracy": 53.84615384615385,
+    "agreement_rate": 84.61538461538461,
+    "disagreement_count": 2,
+    "timestamp": "2025-04-22 19:47:47",
+    "standard_accuracy_class_0": 100.0,
+    "standard_accuracy_class_1": 0.0,
+    "standard_accuracy_class_2": 0.0,
+    "combined_accuracy_class_0": 100.0,
+    "combined_accuracy_class_1": 0.0,
+    "combined_accuracy_class_2": 0.0
+}

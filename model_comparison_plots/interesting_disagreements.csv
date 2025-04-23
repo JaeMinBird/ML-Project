@@ -1,0 +1,3 @@
+text,true_label,true_label_text,standard_prediction,standard_prediction_text,combined_prediction,combined_prediction_text,difficulty,would_take_again,department,models_agree,standard_correct,combined_correct,standard_was_correct,combined_was_correct,both_wrong
+david state is a excellent teacher. he is ethical and fair to the students. he has a really good handle on the material and we are impressed by his life experiences. he is an inspiration. ,1,neutral,2,positive,0,negative,4,,Business,False,False,False,False,False,True
+"good, straightforward instruction. ",1,neutral,2,positive,0,negative,4,,Computer Science,False,False,False,False,False,True

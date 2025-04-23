@@ -1,0 +1,61 @@
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Model files - these can be large
+models/*/model.safetensors
+models/*/pytorch_model.bin
+models/*/*weight*
+models/
+
+# Data files - can be regenerated from scripts
+data/*.csv
+
+# Logs
+logs/*.log
+logs/*.png
+
+# Generated plots 
+analysis_plots/
+model_comparison_plots/
+performance_tracking/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Other large files
+*.gz
+*.zip
+*.tar
+
+# Keep .gitkeep files in empty directories
+!**/.gitkeep
+
+# Ensure directories exist even if contents are ignored
+!data/
+!logs/
+!models/
+!analysis_plots/
+!model_comparison_plots/
+!performance_tracking/

@@ -1,4 +1,4 @@
-# Penn State Rate My Professors - Sentiment Analysis Pipeline
+# Penn State Rate My Professors - Sentiment Analysis Model
 
 This project scrapes professor reviews from Rate My Professors for Penn State University, processes the data to extract valuable insights, and trains sentiment analysis models to understand student opinions. The project includes data analysis and visualization capabilities, along with model comparison tools to evaluate different sentiment prediction approaches.
 

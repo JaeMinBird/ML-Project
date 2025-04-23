@@ -1,4 +1,4 @@
-# Penn State Rate My Professors - Sentiment Analysis Pipeline
+# Penn State Rate My Professors - Sentiment Analysis Classifier
 
 This project scrapes professor reviews from Rate My Professors for Penn State University, processes the data to extract valuable insights, and trains sentiment analysis models to understand student opinions. The project includes data analysis and visualization capabilities, along with model comparison tools to evaluate different sentiment prediction approaches.
 
@@ -15,6 +15,7 @@ The sentiment analysis pipeline consists of several components that work togethe
 5. **Model Comparison**: Evaluates and compares the performance of both models
 6. **Automated Pipeline**: Runs daily to continuously improve the models with new data
 7. **Performance Tracking**: Tracks model performance over time with visualizations and reports
+8. **Interactive Web Dashboard**: Flask-based UI for exploring data and visualization results
 
 ## Features
 
@@ -38,6 +39,9 @@ The sentiment analysis pipeline consists of several components that work togethe
 ├── 📁 analysis_plots/        # Generated data visualizations
 ├── 📁 model_comparison_plots/# Model comparison analysis
 ├── 📁 performance_tracking/  # Performance metrics and trends over time
+├── 📁 screenshots/           # UI screenshots for documentation
+├── 📁 static/                # Static assets for the Flask web application
+├── 📁 templates/             # HTML templates for the Flask web application
 ├── 📄 scraper.py             # Rate My Professors web scraper
 ├── 📄 preprocessor.py        # Data cleaning and feature extraction
 ├── 📄 model.py               # Sentiment analysis model training
@@ -45,6 +49,7 @@ The sentiment analysis pipeline consists of several components that work togethe
 ├── 📄 compare_models.py      # Model comparison tools
 ├── 📄 track_model_performance.py # Performance tracking over time
 ├── 📄 scheduler.py           # Automated pipeline scheduler
+├── 📄 app.py                 # Flask web application
 ├── 📄 main.py                # Main application entry point
 └── 📄 requirements.txt       # Project dependencies
 ```
@@ -70,6 +75,9 @@ The sentiment analysis pipeline consists of several components that work togethe
   - json
   - logging
   - datetime
+  - flask
+  - plotly
+  - plotly-express
 
 ### Installation
 
@@ -165,6 +173,49 @@ python scheduler.py --scrape-only
 python scheduler.py --train-only
 python scheduler.py --analyze-only
 ```
+
+## Web Application Interface
+
+The project includes an interactive Flask-based web application that provides a user-friendly interface for exploring the sentiment analysis data and visualizations. The web application allows users to:
+
+- View dashboard summary metrics
+- Explore interactive charts with customizable parameters
+- Browse and filter the review data
+- Compare departments and professors
+
+To run the web application:
+
+```
+python app.py
+```
+
+Then open your browser and navigate to `http://localhost:5000`.
+
+### Dashboard Overview
+
+The dashboard provides a high-level summary of the Penn State RMP data analysis, including key metrics such as total number of reviews, professors analyzed, average ratings, and sentiment distribution. It offers a quick snapshot of the current state of the dataset.
+
+![Dashboard Overview](screenshots/dashboard.png)
+*The dashboard overview shows key metrics including review count, professor count, average ratings, and sentiment distribution. Users can quickly gauge the overall tone of professor reviews across Penn State University.*
+
+### Interactive Charts
+
+The application features a powerful interactive charting system that allows users to create custom visualizations by selecting different variables, chart types, aggregation methods, and filters.
+
+![Department Rating Chart](screenshots/ChartEx1.png)
+*This chart example shows the average rating by department, broken down by sentiment. Users can customize the x-axis, y-axis, color grouping, chart type, and apply various filters to explore different aspects of the data.*
+
+![Rating vs Difficulty Chart](screenshots/ChartEx2.png)
+*This plot demonstrates the relationship between professor ratings and difficulty scores. Each point represents a professor, with colors indicating sentiment categories. This visualization helps identify patterns between perceived difficulty and overall professor ratings.*
+
+### Data Browser
+
+The data browser section allows users to explore the underlying review data directly. Users can filter reviews by department and professor, see the full text of reviews, and analyze individual ratings, difficulties, and sentiments.
+
+![Data Browser](screenshots/data_browser.png)
+*The data browser provides direct access to individual reviews. Users can filter by department and professor to find specific reviews of interest, showing detailed information including the review text, rating, difficulty score, and sentiment classification.*
+
+The web application makes the entire sentiment analysis pipeline accessible to non-technical users, enabling broader engagement with the insights generated from the Rate My Professors data. It serves as both a research tool and a practical utility for students looking to make informed decisions about course selection.
 
 ## Key Insights
 

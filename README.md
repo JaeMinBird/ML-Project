@@ -1,4 +1,4 @@
-# Penn State Rate My Professors - Sentiment Analysis Classifier
+# Penn State Rate My Professors - Sentiment Analysis Pipeline
 
 This project scrapes professor reviews from Rate My Professors for Penn State University, processes the data to extract valuable insights, and trains sentiment analysis models to understand student opinions. The project includes data analysis and visualization capabilities, along with model comparison tools to evaluate different sentiment prediction approaches.
 
@@ -29,19 +29,117 @@ The sentiment analysis pipeline consists of several components that work togethe
 - **Performance Tracking**: Visual tracking of model metrics over time to measure continuous improvement
 - **Automated Learning**: Daily scheduled runs to continuously improve model accuracy
 
+## Architecture
+
+### Data Collection & Processing Stack
+- **Web Scraping System**
+  - Custom Rate My Professors scraper
+  - Randomized professor selection algorithm
+  - Automated data acquisition pipeline
+  - Dynamic tag extraction from professor profiles
+
+- **Data Processing Pipeline**
+  - Text cleaning and normalization
+  - Feature extraction from reviews
+  - Sentiment classification preprocessing
+  - Department and professor categorization
+  - NaN value handling and data integrity checks
+
+### Machine Learning Pipeline
+- **Model Training Framework**
+  - Standard Model: Rating-based sentiment classification
+  - Combined Model: Multi-feature sentiment analysis
+  - Training/test data splitting and validation
+  - Performance metrics tracking
+
+- **Analysis & Comparison Tools**
+  - Statistical analysis of sentiment patterns
+  - Department-level comparisons
+  - Tag frequency and correlation analysis
+  - Model performance visualization
+  - Longitudinal tracking of model improvements
+
+### Frontend Stack
+- **Flask Web Application**
+  - Jinja2 templating engine
+  - Bootstrap 5 UI framework
+  - Responsive dashboard design
+  - Interactive data filtering
+
+- **Visualization System**
+  - Plotly.js for interactive charts
+  - Dynamic chart generation
+  - Customizable visualization parameters
+  - Real-time data filtering capabilities
+
+### Backend Architecture
+- **Flask API Endpoints**
+  - Data retrieval and filtering routes
+  - Chart generation endpoints
+  - Professor and department listing services
+  - Error handling and logging
+
+- **Data Management**
+  - Pandas DataFrames for data manipulation
+  - CSV-based data persistence
+  - Efficient filtering and aggregation
+  - JSON serialization with NaN handling
+
+### Automation & Scheduling
+- **Pipeline Automation**
+  - APScheduler for task scheduling
+  - Daily data collection and processing
+  - Incremental model training
+  - Performance tracking and reporting
+
 ## Project Structure
 
 ```
 📁 ML Project/
 ├── 📁 data/                  # Stores scraped and processed data
+│   ├── 📄 penn_state_reviews_*.csv     # Raw scraped data
+│   ├── 📄 *_processed.csv    # Processed review data
+│   ├── 📄 train_data.csv     # Training dataset
+│   └── 📄 test_data.csv      # Testing dataset
+│
 ├── 📁 models/                # Saved trained models
+│   └── 📁 professor_reviews_*_sentiment_*/  # Versioned model folders
+│       ├── 📄 config.json    # Model configuration
+│       ├── 📄 model.safetensors # Model weights
+│       ├── 📄 tokenizer files # Tokenizer configuration
+│       └── 📄 vocab.txt      # Model vocabulary
+│
 ├── 📁 logs/                  # Application logs
+│   ├── 📄 *_YYYYMMDD.log     # Component-specific logs
+│   ├── 📄 standard_test_metrics_*.txt # Model test results
+│   └── 📄 training_progress_*.png # Training visualization
+│
 ├── 📁 analysis_plots/        # Generated data visualizations
+│   ├── 📄 department_*.png   # Department analysis charts
+│   ├── 📄 sentiment_*.png    # Sentiment distribution charts
+│   ├── 📄 difficulty_*.png   # Difficulty correlation charts
+│   ├── 📄 tag_*.png          # Tag analysis charts
+│   └── 📄 would_take_again_*.png # "Would take again" analysis
+│
 ├── 📁 model_comparison_plots/# Model comparison analysis
-├── 📁 performance_tracking/  # Performance metrics and trends over time
+│
+├── 📁 performance_tracking/  # Performance metrics over time
+│   ├── 📄 accuracy_*.png     # Accuracy trend visualizations
+│   ├── 📄 f1_*.png           # F1 score trend visualizations
+│   ├── 📄 loss_*.png         # Loss trend visualizations
+│   ├── 📄 combined_metrics_*.png # Multi-metric visualizations
+│   ├── 📄 model_performance_history.csv # Historical performance data
+│   └── 📄 model_performance_report.md # Performance summary
+│
 ├── 📁 screenshots/           # UI screenshots for documentation
-├── 📁 static/                # Static assets for the Flask web application
-├── 📁 templates/             # HTML templates for the Flask web application
+│   ├── 📄 dashboard.png      # Dashboard overview screenshot
+│   ├── 📄 ChartEx*.png       # Chart examples
+│   └── 📄 data_browser.png   # Data browser screenshot
+│
+├── 📁 templates/             # Flask application templates
+│   ├── 📄 base.html          # Base template with common elements
+│   └── 📄 index.html         # Main dashboard template
+│
 ├── 📄 scraper.py             # Rate My Professors web scraper
 ├── 📄 preprocessor.py        # Data cleaning and feature extraction
 ├── 📄 model.py               # Sentiment analysis model training

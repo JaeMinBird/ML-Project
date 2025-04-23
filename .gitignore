@@ -23,9 +23,11 @@ models/*/*weight*
 models/
 
 # Data files - can be regenerated from scripts
+data/
 data/*.csv
 
 # Logs
+logs/
 logs/*.log
 logs/*.png
 

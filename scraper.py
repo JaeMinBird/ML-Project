@@ -148,18 +148,22 @@ class RateMyProfessorsScraper:
         """Search for professors at the specified school"""
         logger.info(f"Searching for professors at {school} (page {page})")
         
-        # Updated search parameters
+        # Updated search parameters - use "*" as query to match any professor at the school
         search_params = {
-            "q": school,
+            "q": "*",  # Wildcard to match any professor name
             "sid": self.school_id,  # School ID for Penn State
             "page": page
         }
         
-        response = self._make_request(f"{self.search_url}", params=search_params)
+        # Use the direct URL with school ID (more reliable approach)
+        search_url = f"{self.search_url}/{self.school_id}"
+        
+        response = self._make_request(search_url, params=search_params)
         if not response:
             logger.error(f"Failed to get search results for {school}")
             return [], False
         
+        # Rest of the method remains unchanged
         relay_store = self._extract_relay_store(response.text)
         if not relay_store:
             logger.error("Could not extract professor data from response")

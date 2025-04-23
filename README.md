@@ -92,6 +92,100 @@ The sentiment analysis pipeline consists of several components that work togethe
   - Incremental model training
   - Performance tracking and reporting
 
+## Technology Stack & Libraries
+
+This project leverages a comprehensive set of Python libraries and frameworks for its various components:
+
+### Machine Learning & NLP Libraries
+- **PyTorch**: Core deep learning framework used for model training and inference
+  - Used for creating neural network architectures and computing gradients
+  - Provides GPU acceleration for faster model training when available
+  - Handles tensors and computational graphs for the sentiment models
+
+- **Transformers (Hugging Face)**: Advanced NLP model library
+  - Provides pre-trained DistilBERT model for fine-tuning on professor reviews
+  - Implements tokenizers for processing text data
+  - Offers sequence classification models for sentiment analysis
+  - Includes optimization schedulers for training efficiency
+
+- **Scikit-learn**: Machine learning utilities
+  - Used for performance metrics calculation (accuracy, F1-score)
+  - Provides classification reports for model evaluation
+  - Handles train/test splits and evaluation metrics
+  - Implements data preprocessing functionality
+
+### Data Processing & Analysis
+- **Pandas**: Data manipulation and analysis
+  - Core data structure for storing and processing review data
+  - Handles CSV reading/writing and DataFrame operations
+  - Provides filtering, grouping, and aggregation capabilities
+  - Manages NaN values and data integrity
+
+- **NumPy**: Numerical computing
+  - Supports efficient array operations for model inputs/outputs
+  - Provides mathematical functions for data analysis
+  - Handles statistical calculations for metrics
+  - Works with pandas for data transformations
+
+- **Matplotlib & Seaborn**: Data visualization
+  - Creates performance tracking visualizations
+  - Generates training progress plots with loss and accuracy curves
+  - Produces department analysis charts and sentiment distributions
+  - Visualizes tag frequency and correlation analyses
+
+### Web Scraping & Automation
+- **Requests**: HTTP client for web scraping
+  - Fetches professor review pages from Rate My Professors
+  - Handles HTTP sessions and response processing
+  - Manages request headers and parameters
+
+- **BeautifulSoup4**: HTML parsing for web scraping
+  - Extracts review content, ratings, and metadata
+  - Parses professor profile pages for additional information
+  - Navigates DOM structure to locate relevant data
+
+- **APScheduler**: Task scheduling
+  - Implements automated daily runs of the data pipeline
+  - Manages periodic scraping, processing, and model retraining
+  - Provides cron-like scheduling capabilities
+  - Ensures consistent data collection over time
+
+### Web Application & Visualization
+- **Flask**: Web application framework
+  - Serves the interactive dashboard interface
+  - Provides API endpoints for data retrieval and processing
+  - Implements routing and request handling
+  - Renders Jinja2 templates for the frontend
+
+- **Plotly**: Interactive visualizations
+  - Powers the customizable interactive charts in the web UI
+  - Provides bar charts, scatter plots, and heatmaps
+  - Enables user-driven data exploration
+  - Supports dynamic filtering and aggregation in visualizations
+
+- **Bootstrap 5**: Frontend framework
+  - Implements responsive dashboard components
+  - Provides consistent styling and UI elements
+  - Ensures cross-device compatibility
+  - Offers interactive components like dropdowns and modals
+
+### Utility & Support Libraries
+- **Logging**: Comprehensive logging system
+  - Tracks pipeline execution and errors
+  - Records model training progress
+  - Documents data processing steps
+  - Facilitates debugging and performance monitoring
+
+- **TQDM**: Progress visualization
+  - Displays progress bars for long-running operations
+  - Shows model training progress by epoch and batch
+  - Improves user experience during data processing
+
+- **JSON**: Data interchange
+  - Handles API responses and data serialization
+  - Stores model configurations
+  - Manages web application data exchange
+
 ## Project Structure
 
 ```
@@ -151,6 +245,75 @@ The sentiment analysis pipeline consists of several components that work togethe
 ├── 📄 main.py                # Main application entry point
 └── 📄 requirements.txt       # Project dependencies
 ```
+
+## Web Application Interface
+
+The project includes an interactive Flask-based web application that provides a user-friendly interface for exploring the sentiment analysis data and visualizations. The web application allows users to:
+
+- View dashboard summary metrics
+- Explore interactive charts with customizable parameters
+- Browse and filter the review data
+- Compare departments and professors
+
+To run the web application:
+
+```
+python app.py
+```
+
+Then open your browser and navigate to `http://localhost:5000`.
+
+### Dashboard Overview
+
+The dashboard provides a high-level summary of the Penn State RMP data analysis, including key metrics such as total number of reviews, professors analyzed, average ratings, and sentiment distribution. It offers a quick snapshot of the current state of the dataset.
+
+![Dashboard Overview](screenshots/dashboard.png)
+*The dashboard overview shows key metrics including review count, professor count, average ratings, and sentiment distribution. Users can quickly gauge the overall tone of professor reviews across Penn State University.*
+
+### Interactive Charts
+
+The application features a powerful interactive charting system that allows users to create custom visualizations by selecting different variables, chart types, aggregation methods, and filters.
+
+![Department Rating Chart](screenshots/ChartEx1.png)
+*This chart example shows the average rating by department, broken down by sentiment. Users can customize the x-axis, y-axis, color grouping, chart type, and apply various filters to explore different aspects of the data.*
+
+![Rating vs Difficulty Chart](screenshots/ChartEx2.png)
+*This plot demonstrates the relationship between professor ratings and difficulty scores. Each point represents a professor, with colors indicating sentiment categories. This visualization helps identify patterns between perceived difficulty and overall professor ratings.*
+
+### Data Browser
+
+The data browser section allows users to explore the underlying review data directly. Users can filter reviews by department and professor, see the full text of reviews, and analyze individual ratings, difficulties, and sentiments.
+
+![Data Browser](screenshots/data_browser.png)
+*The data browser provides direct access to individual reviews. Users can filter by department and professor to find specific reviews of interest, showing detailed information including the review text, rating, difficulty score, and sentiment classification.*
+
+The web application makes the entire sentiment analysis pipeline accessible to non-technical users, enabling broader engagement with the insights generated from the Rate My Professors data. It serves as both a research tool and a practical utility for students looking to make informed decisions about course selection.
+
+## Key Insights
+
+### Sentiment vs. Difficulty
+
+![Difficulty Analysis](analysis_plots/difficulty_sentiment_heatmap.png)
+
+The analysis reveals that professor difficulty has a substantial impact on sentiment. The combined model weights difficulty appropriately to provide a more balanced view of professor quality.
+
+### Department Comparison
+
+![Department Analysis](analysis_plots/department_rating.png)
+
+Sentiment varies significantly across departments, with some consistently receiving more positive reviews than others.
+
+### Tag Analysis
+
+![Tag Analysis](analysis_plots/tag_frequency.png)
+
+The most common tags provide insight into what students value most in their professors, with "helpful" being particularly associated with positive reviews.
+
+### Model Performance Over Time
+
+![Model Performance](performance_tracking/combined_metrics_over_time.png)
+
+As more data is collected daily, both models show continuous improvement, with the combined model generally outperforming the standard model. The performance tracking feature helps visualize these trends over time.
 
 ## Getting Started
 
@@ -271,75 +434,6 @@ python scheduler.py --scrape-only
 python scheduler.py --train-only
 python scheduler.py --analyze-only
 ```
-
-## Web Application Interface
-
-The project includes an interactive Flask-based web application that provides a user-friendly interface for exploring the sentiment analysis data and visualizations. The web application allows users to:
-
-- View dashboard summary metrics
-- Explore interactive charts with customizable parameters
-- Browse and filter the review data
-- Compare departments and professors
-
-To run the web application:
-
-```
-python app.py
-```
-
-Then open your browser and navigate to `http://localhost:5000`.
-
-### Dashboard Overview
-
-The dashboard provides a high-level summary of the Penn State RMP data analysis, including key metrics such as total number of reviews, professors analyzed, average ratings, and sentiment distribution. It offers a quick snapshot of the current state of the dataset.
-
-![Dashboard Overview](screenshots/dashboard.png)
-*The dashboard overview shows key metrics including review count, professor count, average ratings, and sentiment distribution. Users can quickly gauge the overall tone of professor reviews across Penn State University.*
-
-### Interactive Charts
-
-The application features a powerful interactive charting system that allows users to create custom visualizations by selecting different variables, chart types, aggregation methods, and filters.
-
-![Department Rating Chart](screenshots/ChartEx1.png)
-*This chart example shows the average rating by department, broken down by sentiment. Users can customize the x-axis, y-axis, color grouping, chart type, and apply various filters to explore different aspects of the data.*
-
-![Rating vs Difficulty Chart](screenshots/ChartEx2.png)
-*This plot demonstrates the relationship between professor ratings and difficulty scores. Each point represents a professor, with colors indicating sentiment categories. This visualization helps identify patterns between perceived difficulty and overall professor ratings.*
-
-### Data Browser
-
-The data browser section allows users to explore the underlying review data directly. Users can filter reviews by department and professor, see the full text of reviews, and analyze individual ratings, difficulties, and sentiments.
-
-![Data Browser](screenshots/data_browser.png)
-*The data browser provides direct access to individual reviews. Users can filter by department and professor to find specific reviews of interest, showing detailed information including the review text, rating, difficulty score, and sentiment classification.*
-
-The web application makes the entire sentiment analysis pipeline accessible to non-technical users, enabling broader engagement with the insights generated from the Rate My Professors data. It serves as both a research tool and a practical utility for students looking to make informed decisions about course selection.
-
-## Key Insights
-
-### Sentiment vs. Difficulty
-
-![Difficulty Analysis](analysis_plots/difficulty_sentiment_heatmap.png)
-
-The analysis reveals that professor difficulty has a substantial impact on sentiment. The combined model weights difficulty appropriately to provide a more balanced view of professor quality.
-
-### Department Comparison
-
-![Department Analysis](analysis_plots/department_rating.png)
-
-Sentiment varies significantly across departments, with some consistently receiving more positive reviews than others.
-
-### Tag Analysis
-
-![Tag Analysis](analysis_plots/tag_frequency.png)
-
-The most common tags provide insight into what students value most in their professors, with "helpful" being particularly associated with positive reviews.
-
-### Model Performance Over Time
-
-![Model Performance](performance_tracking/combined_metrics_over_time.png)
-
-As more data is collected daily, both models show continuous improvement, with the combined model generally outperforming the standard model. The performance tracking feature helps visualize these trends over time.
 
 ## Future Directions
 

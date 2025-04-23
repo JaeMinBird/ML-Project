@@ -222,6 +222,83 @@ class ReviewAnalyzer:
         plt.savefig(plot_path)
         logger.info(f"Saved department vs sentiment heatmap to {plot_path}")
     
+    def analyze_department_sentiment_vector(self):
+        """Generate a detailed sentiment vector analysis by department"""
+        if self.data is None or 'department' not in self.data.columns:
+            logger.error("Data not loaded or missing department column")
+            return
+        
+        logger.info("Generating sentiment vectors by department")
+        
+        # Get departments with at least 5 reviews
+        dept_counts = self.data['department'].value_counts()
+        significant_depts = dept_counts[dept_counts >= 5].index.tolist()
+        
+        if not significant_depts:
+            logger.warning("No departments have 5 or more reviews. Skipping analysis.")
+            return
+        
+        # Filter data to include only departments with sufficient reviews
+        dept_data = self.data[self.data['department'].isin(significant_depts)]
+        
+        # Create vectors of sentiment metrics by department
+        dept_metrics = []
+        for dept in significant_depts:
+            dept_subset = dept_data[dept_data['department'] == dept]
+            
+            # Calculate metrics
+            metrics = {
+                'department': dept,
+                'review_count': len(dept_subset),
+                'avg_rating': dept_subset['rating'].mean(),
+                'avg_difficulty': dept_subset['difficulty'].mean(),
+                'positive_sentiment': (dept_subset['sentiment'] == 'positive').mean() * 100,
+                'neutral_sentiment': (dept_subset['sentiment'] == 'neutral').mean() * 100,
+                'negative_sentiment': (dept_subset['sentiment'] == 'negative').mean() * 100,
+                'would_take_again': dept_subset['would_take_again_bool'].mean() * 100 if 'would_take_again_bool' in dept_subset.columns else None
+            }
+            dept_metrics.append(metrics)
+        
+        # Create DataFrame from metrics
+        dept_df = pd.DataFrame(dept_metrics)
+        
+        # Sort by average rating
+        dept_df = dept_df.sort_values('avg_rating', ascending=False)
+        
+        # Save to CSV
+        csv_path = os.path.join(self.plots_dir, 'department_sentiment_vector.csv')
+        dept_df.to_csv(csv_path, index=False)
+        logger.info(f"Saved department sentiment vector data to {csv_path}")
+        
+        # Create heatmap of department sentiment vectors
+        plt.figure(figsize=(14, 10))
+        
+        # Select columns for heatmap (excluding department name and review count)
+        heatmap_columns = ['avg_rating', 'avg_difficulty', 'positive_sentiment', 
+                           'neutral_sentiment', 'negative_sentiment']
+        if 'would_take_again' in dept_df.columns and dept_df['would_take_again'].notna().all():
+            heatmap_columns.append('would_take_again')
+        
+        # Normalize the data for better visualization
+        heatmap_data = dept_df[heatmap_columns].copy()
+        for col in heatmap_data.columns:
+            heatmap_data[col] = (heatmap_data[col] - heatmap_data[col].min()) / (heatmap_data[col].max() - heatmap_data[col].min())
+        
+        # Create heatmap with department names as y-axis
+        heatmap_data_indexed = heatmap_data.copy()
+        heatmap_data_indexed.index = dept_df['department']
+        
+        sns.heatmap(heatmap_data_indexed, annot=True, fmt='.2f', cmap='viridis')
+        plt.title('Department Sentiment Vector Analysis (Normalized)')
+        plt.tight_layout()
+        
+        # Save the plot
+        plot_path = os.path.join(self.plots_dir, 'department_sentiment_vector.png')
+        plt.savefig(plot_path)
+        logger.info(f"Saved department sentiment vector plot to {plot_path}")
+        
+        return dept_df
+    
     def analyze_tag_distribution(self):
         """Analyze the distribution of tags in reviews"""
         if self.data is None or 'tags' not in self.data.columns:
@@ -238,10 +315,10 @@ class ReviewAnalyzer:
             # Calculate the frequency of each tag
             tag_counts = self.data[tag_columns].sum().sort_values(ascending=False)
             
-            # Plot tag frequency
+            # Plot only the top 5 tags
             plt.figure(figsize=(12, 6))
-            tag_counts.plot(kind='bar')
-            plt.title('Frequency of Tags in Reviews')
+            tag_counts.head(5).plot(kind='bar')
+            plt.title('Top 5 Most Common Tags in Reviews')
             plt.xlabel('Tag')
             plt.ylabel('Count')
             plt.xticks(rotation=45, ha='right')
@@ -250,7 +327,7 @@ class ReviewAnalyzer:
             # Save the plot
             plot_path = os.path.join(self.plots_dir, 'tag_frequency.png')
             plt.savefig(plot_path)
-            logger.info(f"Saved tag frequency plot to {plot_path}")
+            logger.info(f"Saved top 5 tags frequency plot to {plot_path}")
             
             # Calculate average rating for reviews with each tag
             tag_ratings = {}
@@ -258,11 +335,12 @@ class ReviewAnalyzer:
                 avg_rating = self.data[self.data[tag] == True]['rating'].mean()
                 tag_ratings[tag] = avg_rating
             
-            # Plot average rating by tag
+            # Plot average rating by tag (top 5 most common tags)
             plt.figure(figsize=(12, 6))
-            tag_ratings_series = pd.Series(tag_ratings).sort_values(ascending=False)
+            top5_tags = tag_counts.head(5).index.tolist()
+            tag_ratings_series = pd.Series({tag: tag_ratings[tag] for tag in top5_tags}).sort_values(ascending=False)
             tag_ratings_series.plot(kind='bar')
-            plt.title('Average Rating by Tag')
+            plt.title('Average Rating for Top 5 Most Common Tags')
             plt.xlabel('Tag')
             plt.ylabel('Average Rating')
             plt.xticks(rotation=45, ha='right')
@@ -271,7 +349,7 @@ class ReviewAnalyzer:
             # Save the plot
             plot_path = os.path.join(self.plots_dir, 'tag_rating.png')
             plt.savefig(plot_path)
-            logger.info(f"Saved tag vs rating plot to {plot_path}")
+            logger.info(f"Saved top 5 tags vs rating plot to {plot_path}")
         else:
             # Parse tags from the comma-separated string
             all_tags = []
@@ -283,10 +361,10 @@ class ReviewAnalyzer:
             # Count tag frequency
             tag_freq = pd.Series(all_tags).value_counts()
             
-            # Plot top 20 tags
+            # Plot only the top 5 tags
             plt.figure(figsize=(12, 6))
-            tag_freq.head(20).plot(kind='bar')
-            plt.title('Top 20 Tags in Reviews')
+            tag_freq.head(5).plot(kind='bar')
+            plt.title('Top 5 Most Common Tags in Reviews')
             plt.xlabel('Tag')
             plt.ylabel('Count')
             plt.xticks(rotation=45, ha='right')
@@ -295,7 +373,7 @@ class ReviewAnalyzer:
             # Save the plot
             plot_path = os.path.join(self.plots_dir, 'top_tags.png')
             plt.savefig(plot_path)
-            logger.info(f"Saved top tags plot to {plot_path}")
+            logger.info(f"Saved top 5 tags plot to {plot_path}")
     
     def analyze_sentiment_distribution(self):
         """Analyze the distribution of sentiment in reviews"""
@@ -354,6 +432,7 @@ class ReviewAnalyzer:
         self.analyze_difficulty_sentiment_correlation()
         self.analyze_would_take_again()
         self.analyze_department_distribution()
+        self.analyze_department_sentiment_vector()
         self.analyze_tag_distribution()
         
         logger.info("All analyses completed. Plots saved to " + self.plots_dir)

@@ -87,6 +87,15 @@ class ModelPerformanceTracker:
         self.standard_metrics.sort(key=lambda x: x.get('Date', datetime.min))
         self.combined_metrics.sort(key=lambda x: x.get('Date', datetime.min))
         
+        # Add run number to metrics
+        for i, metrics in enumerate(self.standard_metrics):
+            metrics['Run'] = i + 1
+            metrics['Training Data'] = f"Run {i + 1}"
+        
+        for i, metrics in enumerate(self.combined_metrics):
+            metrics['Run'] = i + 1
+            metrics['Training Data'] = f"Run {i + 1}"
+        
         logger.info(f"Collected metrics for {len(self.standard_metrics)} standard model runs and {len(self.combined_metrics)} combined model runs")
     
     def create_metrics_dataframe(self):
@@ -102,11 +111,11 @@ class ModelPerformanceTracker:
         df = pd.DataFrame(all_metrics)
         
         # Ensure required columns exist
-        required_columns = ['Date', 'Model Type', 'Test Accuracy', 'Test F1 Score', 'Test Loss']
+        required_columns = ['Date', 'Model Type', 'Run', 'Training Data', 'Test Accuracy', 'Test F1 Score', 'Test Loss']
         for col in required_columns:
             if col not in df.columns:
                 logger.warning(f"Required column {col} not found in metrics data")
-                if col not in ['Date', 'Model Type']:
+                if col not in ['Date', 'Model Type', 'Run', 'Training Data']:
                     df[col] = None
         
         # Create a string version of date for display
@@ -255,6 +264,142 @@ class ModelPerformanceTracker:
         plt.savefig(plot_path)
         logger.info(f"Saved combined metrics plot to {plot_path}")
     
+    def plot_accuracy_by_run(self, df):
+        """Plot model accuracy by run number"""
+        if df is None or df.empty:
+            logger.warning("No data available to plot accuracy by run")
+            return
+        
+        plt.figure(figsize=(10, 6))
+        
+        # Plot accuracy for each model type
+        for model_type in df['Model Type'].unique():
+            model_df = df[df['Model Type'] == model_type]
+            plt.plot(model_df['Run'], model_df['Test Accuracy'], 
+                   marker='o', label=f"{model_type} Model")
+        
+        plt.title('Model Accuracy by Training Run')
+        plt.xlabel('Training Run')
+        plt.ylabel('Accuracy')
+        plt.ylim(0, 1)  # Accuracy is between 0 and 1
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend()
+        plt.xticks(df['Run'].unique())
+        
+        # Save plot
+        plot_path = os.path.join(self.performance_dir, 'accuracy_by_run.png')
+        plt.savefig(plot_path)
+        logger.info(f"Saved accuracy by run plot to {plot_path}")
+    
+    def plot_f1_by_run(self, df):
+        """Plot model F1 score by run number"""
+        if df is None or df.empty:
+            logger.warning("No data available to plot F1 score by run")
+            return
+        
+        plt.figure(figsize=(10, 6))
+        
+        # Plot F1 score for each model type
+        for model_type in df['Model Type'].unique():
+            model_df = df[df['Model Type'] == model_type]
+            plt.plot(model_df['Run'], model_df['Test F1 Score'], 
+                   marker='o', label=f"{model_type} Model")
+        
+        plt.title('Model F1 Score by Training Run')
+        plt.xlabel('Training Run')
+        plt.ylabel('F1 Score')
+        plt.ylim(0, 1)  # F1 Score is between 0 and 1
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend()
+        plt.xticks(df['Run'].unique())
+        
+        # Save plot
+        plot_path = os.path.join(self.performance_dir, 'f1_by_run.png')
+        plt.savefig(plot_path)
+        logger.info(f"Saved F1 score by run plot to {plot_path}")
+    
+    def plot_loss_by_run(self, df):
+        """Plot model loss by run number"""
+        if df is None or df.empty:
+            logger.warning("No data available to plot loss by run")
+            return
+        
+        plt.figure(figsize=(10, 6))
+        
+        # Plot loss for each model type
+        for model_type in df['Model Type'].unique():
+            model_df = df[df['Model Type'] == model_type]
+            plt.plot(model_df['Run'], model_df['Test Loss'], 
+                   marker='o', label=f"{model_type} Model")
+        
+        plt.title('Model Loss by Training Run')
+        plt.xlabel('Training Run')
+        plt.ylabel('Loss')
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend()
+        plt.xticks(df['Run'].unique())
+        
+        # Save plot
+        plot_path = os.path.join(self.performance_dir, 'loss_by_run.png')
+        plt.savefig(plot_path)
+        logger.info(f"Saved loss by run plot to {plot_path}")
+    
+    def plot_combined_metrics_by_run(self, df):
+        """Plot all metrics on a single plot by run number for easy comparison"""
+        if df is None or df.empty:
+            logger.warning("No data available to plot combined metrics by run")
+            return
+        
+        # Create subplots
+        fig, axs = plt.subplots(3, 1, figsize=(12, 15), sharex=True)
+        
+        # Plot accuracy
+        for model_type in df['Model Type'].unique():
+            model_df = df[df['Model Type'] == model_type]
+            axs[0].plot(model_df['Run'], model_df['Test Accuracy'], 
+                      marker='o', label=f"{model_type} Model")
+        
+        axs[0].set_title('Model Accuracy by Training Run')
+        axs[0].set_ylabel('Accuracy')
+        axs[0].set_ylim(0, 1)
+        axs[0].grid(True, linestyle='--', alpha=0.7)
+        axs[0].legend()
+        
+        # Plot F1 score
+        for model_type in df['Model Type'].unique():
+            model_df = df[df['Model Type'] == model_type]
+            axs[1].plot(model_df['Run'], model_df['Test F1 Score'], 
+                      marker='o', label=f"{model_type} Model")
+        
+        axs[1].set_title('Model F1 Score by Training Run')
+        axs[1].set_ylabel('F1 Score')
+        axs[1].set_ylim(0, 1)
+        axs[1].grid(True, linestyle='--', alpha=0.7)
+        axs[1].legend()
+        
+        # Plot loss
+        for model_type in df['Model Type'].unique():
+            model_df = df[df['Model Type'] == model_type]
+            axs[2].plot(model_df['Run'], model_df['Test Loss'], 
+                      marker='o', label=f"{model_type} Model")
+        
+        axs[2].set_title('Model Loss by Training Run')
+        axs[2].set_xlabel('Training Run')
+        axs[2].set_ylabel('Loss')
+        axs[2].grid(True, linestyle='--', alpha=0.7)
+        axs[2].legend()
+        
+        # Format x-axis to show integer run numbers
+        for ax in axs:
+            ax.set_xticks(df['Run'].unique())
+        
+        plt.tight_layout()
+        
+        # Save plot
+        plot_path = os.path.join(self.performance_dir, 'combined_metrics_by_run.png')
+        plt.savefig(plot_path)
+        logger.info(f"Saved combined metrics by run plot to {plot_path}")
+    
     def generate_performance_report(self, df):
         """Generate a performance report with latest metrics and trends"""
         if df is None or df.empty:
@@ -366,6 +511,12 @@ class ModelPerformanceTracker:
             
             # Generate combined plot
             self.plot_combined_metrics(metrics_df)
+            
+            # Generate plots by run number
+            self.plot_accuracy_by_run(metrics_df)
+            self.plot_f1_by_run(metrics_df)
+            self.plot_loss_by_run(metrics_df)
+            self.plot_combined_metrics_by_run(metrics_df)
             
             # Generate performance report
             report_path = self.generate_performance_report(metrics_df)

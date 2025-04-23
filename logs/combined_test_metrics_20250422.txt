@@ -1,3 +1,0 @@
-Test Loss: 0.9964
-Test Accuracy: 0.5385
-Test F1 Score: 0.3769
